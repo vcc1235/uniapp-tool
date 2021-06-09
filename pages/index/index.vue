@@ -9,7 +9,7 @@
 		data() {
 			return {
 				title: 'Hello',
-				number: 10
+				number: 20
 			}
 		},
 		onLoad() {

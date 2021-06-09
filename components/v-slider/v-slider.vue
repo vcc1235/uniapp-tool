@@ -4,7 +4,7 @@
 			width: (width+30)+'rpx',
 			height: '39rpx'
 		}">
-			<movable-view style="z-index: 100;" @change="changeAction" :x="xm" :friction="20" direction="horizontal">
+			<movable-view style="z-index: 100;" @change="changeAction" :x="xm" :damping="40" :friction="0" direction="horizontal">
 			</movable-view>
 			<view class="display-flex-center" style="left: 20rpx; overflow: hidden;position: absolute;z-index: 99;" :style="{
 				width: xm+'px',
@@ -52,6 +52,18 @@
 				xm: 0
 			};
 		},
+		watch:{
+			value:{
+				handler(val){
+					if(val < this.min){
+						throw new Error('slider model less min');
+					}
+					const long = uni.upx2px(this.width);
+					this.xm = ((val - this.min)/(this.max - this.min)*long).toFixed(2)
+				},
+				immediate: true
+			}
+		},
 		methods: {
 			changeAction({
 				detail: {
@@ -61,7 +73,7 @@
 				this.xm = x ;
 				const long = uni.upx2px(this.width);
 				const l = this.min + (x/long)*(this.max-this.min);
-				this.$emit('input', l);
+				this.$emit('input', l.toFixed(2));
 			}
 		}
 	}
