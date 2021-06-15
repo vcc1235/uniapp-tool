@@ -1,15 +1,20 @@
 <template>
 	<view class="content" style="background-color: #FFFFFF;height: 400rpx;">
 		<v-slider v-model="number"></v-slider>
+		<view>
+			<text>{{timeText}}</text>
+		</view>
 	</view>
 </template>
 
 <script>
+	import common from '@/common/common.js'
 	export default {
 		data() {
 			return {
 				title: 'Hello',
-				number: 20
+				number: 20,
+				timeText: ''
 			}
 		},
 		onLoad() {
@@ -19,6 +24,15 @@
 			number(va){
 				console.log(va);
 			}
+		},
+		mounted() {
+			const lastTime = 1623728329
+			const _that = this;
+			uni.$on(uni.$single.listenTime, function(time){
+				const map = common.lastTime(lastTime-time);
+				console.log(map);
+				_that.timeText = common.toMatterDate(map)
+			})
 		},
 		methods: {
 
