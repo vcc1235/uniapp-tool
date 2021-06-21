@@ -1,6 +1,7 @@
 // ArrayBuffer转为字符串，参数为ArrayBuffer对象
 function ab2str(buf) {
-	return String.fromCharCode.apply(null, new Uint16Array(buf));
+	const result = decodeURIComponent(buf.map(function (value, index) { return '%' + value.toString(16) }).join(''));
+	return result;
 }
 // 字符串转为ArrayBuffer对象，参数为字符串
 function str2ab(str) {
@@ -26,8 +27,13 @@ export default {
 		return atob(val);
 		// #endif
 		// #ifndef H5
-		const buffer = uni.base64ToArrayBuffer(val);
-		return ab2str(buffer);
+		try{
+			const buffer = uni.base64ToArrayBuffer(val);
+			return ab2str(buffer);
+		}catch(e){
+			//TODO handle the exception
+			return this.decode(val);
+		}
 		// #endif
 	},
 	encode: function(val) {
