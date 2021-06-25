@@ -1,4 +1,3 @@
-import Base64 from '@/plugins/base64.js';
 const common = {}
 /* 是否为空 */
 common.isEmpty = function(value) {
@@ -139,29 +138,5 @@ common.toMatterDate = function(options = {
 	}
 	return result;
 }
-/* RSA 分段签名 */
-common.RSASign = (encryptor, data = {}) => {
-	try {
-		let jsonString = JSON.stringify(data);
-		let offset = 0,
-			size = 128,
-			maxLength = jsonString.length;
-		let result = ''
-		while (offset < maxLength) {
-			let str = ''
-			if (maxLength - offset >= size) {
-				str = jsonString.substr(offset, size);
-			} else {
-				str = jsonString.substr(offset);
-			}
-			const base = encryptor.encrypt(str);
-			result = result + Base64.decode(base);
-			offset += size;
-		}
-		return Base64.encode(result);
-	} catch (e) {
-		//TODO handle the exception
-		console.log(e.message);
-	}
-}
+
 export default common;

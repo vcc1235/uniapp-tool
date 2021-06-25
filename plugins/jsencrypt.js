@@ -5097,7 +5097,7 @@ var JSEncrypt = function() {
 		options = options || {}
 		this.default_key_size = parseInt(options.default_key_size, 10) || 1024;
 		this.default_public_exponent = options.default_public_exponent ||
-		"010001"; // 65537 default openssl public exponent for rsa key type
+			"010001"; // 65537 default openssl public exponent for rsa key type
 		this.log = options.log || false;
 		// The private and public key.
 		this.key = null;
@@ -5227,7 +5227,64 @@ var JSEncrypt = function() {
 		// Return the private representation of this key.
 		return this.getKey().getPublicBaseKeyB64();
 	};
+	/* 分段加密 */
+	JSEncrypt.prototype.encryptLongString = function(jsonString) {
+		try {
+			let offset = 0,
+				size = 128,
+				maxLength = jsonString.length;
+			let result = ''
+			while (offset < maxLength) {
+				let str = ''
+				if (maxLength - offset >= size) {
+					str = jsonString.substr(offset, size);
+				} else {
+					str = jsonString.substr(offset);
+				}
+				const base = encryptor.encrypt(str);
+				result = result + b64tohex(base)
+				offset += size;
+			}
+			return hex2b64(result);
+		} catch (e) {
+			//TODO handle the exception
+			console.log(e.message);
+			return '';
+		}
+	};
 	JSEncrypt.version = "3.0.0-beta.1";
 	return JSEncrypt;
 };
+// hex转json字符串,16进制ASCII
+function hextoString(hex) {
+	var arr = hex.split("")
+	var out = ""
+	for (var i = 0; i < arr.length / 2; i++) {
+		var tmp = "0x" + arr[i * 2] + arr[i * 2 + 1]
+		var charValue = String.fromCharCode(tmp);
+		out += charValue
+	}
+	return out
+};
+// json字符串转hex
+function stringtoHex(str) {
+	var val = "";
+	for (var i = 0; i < str.length; i++) {
+		if (val == "")
+			val = str.charCodeAt(i).toString(16);
+		else
+			val += str.charCodeAt(i).toString(16);
+	}
+	return val
+}
+// base64 加密
+export const Base64Encode = function(val) {
+	const hex = stringtoHex(val);
+	return hex2b64(hex);
+}
+// base64 解密
+export const Base64Decode = function(val) {
+	const hex = b64tohex(val);
+	return hextoString(hex);
+}
 export default JSEncrypt();

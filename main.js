@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import '@/plugins/base64.js'
 import '@/common/single.js'
+import '@/plugins/jsencrypt.js'
 import App from './App'
 console.log(typeof (''+2));
 Vue.config.productionTip = false
