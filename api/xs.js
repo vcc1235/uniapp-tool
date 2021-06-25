@@ -58,78 +58,89 @@ class XService {
 	}
 	// 设置配置
 	setConfig(func) {
-		console.log(func);
 		this[config] = func(this[config])
 	}
 
 	request(options = {}) {
-		options.url = XService[isCompleteURL](options.url) ? options.url : `${this[config].baseURL}${options.url}`
-		options.method = options.method || this[config].method
-		options.header = {
-			...this[config].header,
-			...options.header
-		}
-		options.dataType = options.dataType || this[config].dataType
-		options = {
-			...options,
-			...XService[requestBefore](options)
-		}
-		return new Promise((resolve, reject) => {
-			options.success = async res => {
-				console.log(res.statusCode, res);
-				if (res.statusCode === 200) {
-					resolve(XService[requestAfter](res.data))
+		try {
+			options.url = XService[isCompleteURL](options.url) ? options.url :
+				`${this[config].baseURL}${options.url}`
+			options.method = options.method || this[config].method
+			options.header = {
+				...this[config].header,
+				...options.header
+			}
+			options.dataType = options.dataType || this[config].dataType
+			options = {
+				...options,
+				...XService[requestBefore](options)
+			}
+			if (options.params && Object.keys(options.params).length > 0) {
+				const query = parseParams(options.params)
+				if (options.url.indexOf('?') === -1) {
+					options.url = options.url + '?' + query;
 				} else {
-					try{
-						const e = await XService[requestAfterError](new Error(res.errMsg));
+					options.url = options.url + '&' + query;
+				}
+			}
+			return new Promise((resolve, reject) => {
+				options.success = async res => {
+					if (res.statusCode === 200) {
+						resolve(XService[requestAfter](res.data))
+					} else {
+						try {
+							const e = await XService[requestAfterError](new Error(res.errMsg));
+							reject(e);
+						} catch (e) {
+							//TODO handle the exception
+							reject(e);
+						}
+					}
+				};
+				options.fail = async error => {
+					try {
+						console.log(error);
+						const e = await XService[requestAfterError](error);
 						reject(e);
-					}catch(e){
+					} catch (e) {
 						//TODO handle the exception
 						reject(e);
 					}
 				}
-			};
-			options.fail =async error => {
-				try{
-					const e = await XService[requestAfterError](error);
-					reject(e);
-				}catch(e){
-					//TODO handle the exception
-					reject(e);
+				if (options.isFile) {
+					uni.uploadFile(options)
+				} else {
+					uni.request(options);
 				}
-			}
-			uni.request(options);
-		})
+			})
+		} catch (e) {
+			console.log(e)
+		}
 	}
 	post(url, data, params, headers = {}, flag = false) {
-		if (flag && params && Object.keys(params).length > 0) {
-			const query = parseParams(params)
-			if (url.indexOf('?') === -1) {
-				url = url + '?' + query;
-			} else {
-				url = url + '&' + query;
-			}
-		}
 		return this.request({
 			url,
 			method: 'POST',
 			data,
+			params,
 			header: headers,
 		})
 	}
-	get(url, params, headers = {}) {
-		if (params && Object.keys(params).length > 0) {
-			const query = parseParams(params)
-			if (url.indexOf('?') === -1) {
-				url = url + '?' + query;
-			} else {
-				url = url + '&' + query;
-			}
-		}
+	get(url, headers = {}) {
 		return this.request({
 			url,
 			header: headers
 		});
+	}
+	async uploadFile(url, data, files, headers = {}) {
+	   return this.request({
+			url,
+			method: 'POST',
+			data,
+			files,
+			isFile: true,
+			header: headers,
+		})
 	}
 }
 
