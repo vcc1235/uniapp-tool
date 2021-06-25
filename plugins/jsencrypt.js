@@ -5241,7 +5241,7 @@ var JSEncrypt = function() {
 				} else {
 					str = jsonString.substr(offset);
 				}
-				const base = encryptor.encrypt(str);
+				const base = this.encrypt(str);
 				result = result + b64tohex(base)
 				offset += size;
 			}
