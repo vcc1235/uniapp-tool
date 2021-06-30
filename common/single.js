@@ -39,6 +39,17 @@ uni.$message = {
 		}
 	}
 }
+uni.px2upx=function(value){
+	return value/(uni.upx2px(100)/100);
+}
+uni.navigateBackAction = function(options) {
+	// #ifdef H5
+		history.go(-1)
+	// #endif
+	// #ifndef H5
+		uni.navigateBack(options)
+	// #endif
+}
 // #ifdef APP-PLUS
 function checkVersion(localVersion, version) {
 	const vlist = localVersion.split('.');
