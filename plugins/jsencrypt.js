@@ -5231,7 +5231,7 @@ var JSEncrypt = function() {
 	JSEncrypt.prototype.encryptLongString = function(jsonString) {
 		try {
 			let offset = 0,
-				size = 128,
+				size = 64,
 				maxLength = jsonString.length;
 			let result = ''
 			while (offset < maxLength) {
