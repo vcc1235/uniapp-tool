@@ -138,5 +138,20 @@ common.toMatterDate = function(options = {
 	}
 	return result;
 }
-
+common.formatterMap = function(map) {
+	const list = Object.keys(map);
+	list.forEach(item => {
+		const value = map[item];
+		if (value && !Array.isArray(value) && typeof value === 'object') {
+			utils.formatterMap(value);
+		}
+		if (value && item.indexOf('_') !== -1) {
+			const key = item.replace(/\_(\w)/g, function(_, letter) {
+				return letter.toUpperCase();
+			});
+			delete map[item]
+			map[key] = value;
+		}
+	})
+}
 export default common;
